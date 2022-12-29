@@ -47,12 +47,12 @@ class ImgHandler():
         self.config['mean'] = mean
         self.config['std'] = std
 
-    def prepare(self, folder_path, mode):
+    def prepare(self, mode):
         if mode == 'train':
             self.get_mean_std()
 
         dataset = MotorDataset(
-            folder_path, 
+            self.config['folder_path'], 
             transform=transforms.Compose([
                 transforms.ToTensor(),
                 transforms.Normalize(mean=self.config['mean'], std=self.config['std'])
@@ -66,7 +66,22 @@ class ImgHandler():
             val_split = int(len(dataset) * valid_ratio)
             indicies = torch.arange(len(dataset))
             np.random.shuffle(indicies)
+            train_ind, val_inds = indicies[val_split:], indicies[:val_split]
+            train_sampler, val_sampler = SubsetRandomSampler(train_ind), SubsetRandomSampler(val_inds)
+            train_loader = torch.utils.data.DataLoader(
+                dataset, 
+                batch_size=batch_size, 
+                sampler=train_sampler
+            )
+            val_loader = torch.utils.data.DataLoader(
+                dataset, 
+                batch_size=batch_size, 
+                sampler=val_sampler
+            )
 
-        pass
+            return train_loader, val_loader
+
+        if mode == 'test':
+            pass
 
 
