@@ -3,7 +3,7 @@ import yaml
 import numpy as np
 import torch
 from torchvision import transforms
-from torch.utils.data import Dataset, SubsetRandomSampler
+from torch.utils.data import Dataset
 from PIL import Image
 
 
@@ -12,16 +12,33 @@ class MotorDataset(Dataset):
         self.transform = transform
         self.root_dir = folder
         self.data = os.listdir(folder)
-        
+
+        self.mapping_y = [
+            'A&B50', 
+            'A&C&B10', 
+            'A&C&B30', 
+            'A&C10', 
+            'A&C30',
+            'A10',
+            'A30',
+            'A50',
+            'Fan',
+            'Noload',
+            'Rotor-0' 
+        ]
+
+        self.y_0 = torch.zeros(len(self.mapping_y)) 
+
     def __len__(self):
         return len(self.data)
-    
+
     def __getitem__(self, index):
         img_id = self.data[index]
         img = Image.open(os.path.join(self.root_dir, img_id))
         # I take name of file as target
-        y = img_id.split('.')[0].split('_')[0]
-
+        metric = img_id.split('.')[0].split('_')[0]
+        y = self.y_0.clone()
+        y[self.mapping_y.index(metric)] = 1
         if self.transform:
             img = self.transform(img)
 
@@ -29,15 +46,14 @@ class MotorDataset(Dataset):
 
 
 class ImgHandler():
-    def __init__(self, config_path):
-        self.config = yaml.load(config_path)
+    def __init__(self, config):
+        self.config = config
 
     def get_mean_std(self, dataset):
         tensor_transform = transforms.ToTensor()
         mean = 0
         var = 0
-        for ix, img_ in enumerate(dataset, start=1):
-            img = img_[0]
+        for ix, (img, _, _) in enumerate(dataset, start=1):
             img_tensor = tensor_transform(img)
             mean += img_tensor.mean([1, 2])
             var += img_tensor.var([1, 2])
@@ -49,7 +65,11 @@ class ImgHandler():
 
     def prepare(self, mode):
         if mode == 'train':
-            self.get_mean_std()
+            tmp_dataset = MotorDataset(
+                self.config['folder_path']
+            )
+            self.get_mean_std(tmp_dataset)
+            del tmp_dataset
 
         dataset = MotorDataset(
             self.config['folder_path'], 
@@ -78,6 +98,9 @@ class ImgHandler():
                 batch_size=batch_size, 
                 sampler=val_sampler
             )
+
+            if not 'mean' in self.config or not 'std' in self.config:
+                yaml.dump(self.config, self.config['my_path'])
 
             return train_loader, val_loader
 
