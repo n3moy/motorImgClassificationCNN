@@ -9,6 +9,8 @@ class Trainer():
     def __init__(self, model, device='cpu'):
         self.model = model
         self.device = device
+        self.model.type(torch.cuda.FloatTensor)
+        self.model.to(self.device)
 
     def train_CNN(self, train_loader, val_loader, loss, optimizer, n_epochs):
         loss_history = {
@@ -24,7 +26,7 @@ class Trainer():
             train_loss = 0
             valid_loss = 0
 
-            for x, y in tqdm(train_loader):
+            for x, y, _ in tqdm(train_loader):
                 x_device = x.to(self.device)
                 y_device = y.to(self.device)
                 preds = self.model(x_device)
@@ -40,11 +42,11 @@ class Trainer():
 
             self.model.eval()
             with torch.no_grad():
-                for x, y in tqdm(val_loader):
+                for x, y, _ in tqdm(val_loader):
                     x_device = x.to(self.device)
                     y_device = y.to(self.device)
-                    preds = self.model(x)
-                    loss_value = loss(preds, y)
+                    preds = self.model(x_device)
+                    loss_value = loss(preds, y_device)
                     valid_loss += loss_value.item()
             valid_loss = valid_loss / len(val_loader)
             print(f'Validation loss : {valid_loss}')

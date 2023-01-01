@@ -1,8 +1,10 @@
 import yaml
+from yaml.loader import SafeLoader
 import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
+from utils import train_model
 
 
 def get_args():
@@ -31,12 +33,12 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     config_path = args.config
-    config = yaml.load(config_path)
+    config = yaml.load(open(config_path), Loader=SafeLoader)
     mode = args.mode
     
     time = datetime.today().date().isoformat()
     log_filename = f'logging_{time}.log'
-    log_path = Path(__file__) / 'logs' / mode / log_filename
+    log_path = Path(__file__).parent.parent / 'logs' / mode / log_filename
     logging.basicConfig(
         filename=log_path, 
         level=logging.DEBUG, 
@@ -44,4 +46,6 @@ if __name__ == '__main__':
         filemode='a+'
     )
     # TODO Add functions to run modes
+    train_model(config_path=config_path)
+
 
