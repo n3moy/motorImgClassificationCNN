@@ -1,0 +1,6 @@
+'batch_size': 16
+'valid_ratio': 0.3
+'folder_path': '.\\data\\interim\\data_named'
+'n_epochs': 30
+'my_path': '.\\configs\\model\\train.yaml'
+'learning_rate': 0.01
