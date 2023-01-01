@@ -74,6 +74,7 @@ class ImgHandler():
         dataset = MotorDataset(
             self.config['folder_path'], 
             transform=transforms.Compose([
+                transforms.Scale((240, 240)),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=self.config['mean'], std=self.config['std'])
             ])
