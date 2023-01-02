@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torchvision import transforms
 from torch.utils.data import Dataset
+from yaml.loader import SafeLoader
 from PIL import Image
 
 
@@ -79,6 +80,7 @@ class ImgHandler():
                 transforms.Normalize(mean=self.config['mean'], std=self.config['std'])
             ])
         )
+        
         if mode == 'train':
             from torch.utils.data.sampler import SubsetRandomSampler
 
@@ -99,13 +101,20 @@ class ImgHandler():
                 batch_size=batch_size, 
                 sampler=val_sampler
             )
-
-            if not 'mean' in self.config or not 'std' in self.config:
-                yaml.dump(self.config, self.config['my_path'])
-
+            inference_config = yaml.load(open(self.config['inference_config']), Loader=SafeLoader)
+            inference_config['mean'] = self.config['mean'].numpy().tolist()
+            inference_config['std'] = self.config['std'].numpy().tolist()
+            yaml.dump(inference_config, open(self.config['inference_config'], 'w'))
+            
             return train_loader, val_loader
 
         if mode == 'test':
-            pass
+            batch_size = self.config['batch_size']
+            loader = torch.utils.data.DataLoader(
+                dataset, 
+                batch_size=batch_size
+            )
+            return loader
+
 
 
