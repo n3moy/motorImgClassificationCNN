@@ -19,6 +19,7 @@ class Trainer():
         }
         best_loss = 10000
         best_model = None
+        best_epoch = 0
         logging.info('Starting model training')
         for i_epoch in range(n_epochs):
             print(f'# {i_epoch} / {n_epochs} epoch')
@@ -55,7 +56,8 @@ class Trainer():
             if valid_loss < best_loss:
                 best_loss = valid_loss
                 best_model = deepcopy(self.model)
-            logging.info(f'Best loss at {i_epoch} : {best_loss}')
+                best_epoch = i_epoch
+            logging.info(f'Epoch {i_epoch}, best loss at {best_epoch} : {best_loss}\nCurrent loss : train - {train_loss} ; val = {valid_loss}')
         logging.info('Trainig is done')
 
         return loss_history, best_model

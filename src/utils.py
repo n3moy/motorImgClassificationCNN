@@ -1,6 +1,7 @@
 import yaml
 import logging
 from yaml.loader import SafeLoader
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -23,13 +24,27 @@ def train_model(config_path):
     lr = config['learning_rate']
     loss = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model_cnn.parameters(), lr=lr)
-    loss_history, best_model = trainer.train_CNN(
+    loss_history, model = trainer.train_CNN(
                                     train_loader, 
                                     val_loader, 
                                     loss, 
                                     optimizer, 
                                     n_epochs
                                 )
-    print(loss_history)
+    
+    if 'save_model_path' in config:
+        model_name = 'model_cnn.pth'
+        save_path = Path(config['save_model_path']) / model_name
+        torch.save(model.state_dict(), save_path)
+        logging.info(f'Trained model is saved to : {save_path}')
+    else:
+        error_string = 'No path in config to save model'
+        logging.error(error_string)
+        raise NotImplementedError(error_string)
+
+    results_filename = 'loss_hist.yaml'
+    results_path = Path(__file__).parent.parent / 'logs' / 'train' / results_filename
+    yaml.dump(loss_history, open(results_path, 'w'), sort_keys=False)
+    logging.info(f'Loss history is saved to {results_path}')
 
 
