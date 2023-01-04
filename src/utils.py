@@ -33,8 +33,7 @@ def train_model(config_path):
                                 )
     
     if 'save_model_path' in config:
-        model_name = 'model_cnn.pth'
-        save_path = Path(config['save_model_path']) / model_name
+        save_path = Path(config['save_model_path'])
         torch.save(model.state_dict(), save_path)
         logging.info(f'Trained model is saved to : {save_path}')
     else:
@@ -47,4 +46,16 @@ def train_model(config_path):
     yaml.dump(loss_history, open(results_path, 'w'), sort_keys=False)
     logging.info(f'Loss history is saved to {results_path}')
 
+
+def test_model(config_path):
+    from models.evaluation import evaluate_model, get_quality_metrics
+
+    config = yaml.load(open(config_path), Loader=SafeLoader)
+    handler = ImgHandler(config)
+    test_loader = handler.prepare(mode='test')
+    model_cnn = CNN(img_size=None, out_size=11)
+    model_cnn.load_state_dict(torch.load(config['model_path']))
+    preds, ground_truth = evaluate_model(model_cnn, test_loader)
+    metrics = get_quality_metrics(preds, ground_truth)
+    yaml.dump(metrics, open(config['output_path'], 'w'), sort_keys=False)
 

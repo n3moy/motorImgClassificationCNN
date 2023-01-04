@@ -4,7 +4,7 @@ import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
-from utils import train_model
+from utils import train_model, test_model
 
 
 def get_args():
@@ -46,6 +46,9 @@ if __name__ == '__main__':
         filemode='a+'
     )
     # TODO Add functions to run modes
-    train_model(config_path=config_path)
+    if mode == 'train':
+        train_model(config_path=config_path)
+    if mode == 'test':
+        test_model(config_path=config_path)
 
 
