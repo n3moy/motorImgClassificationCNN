@@ -64,6 +64,27 @@ class ImgHandler():
         self.config['mean'] = mean
         self.config['std'] = std
 
+    def stratified_split(self, dataset : torch.utils.data.Dataset, random_state=None):
+        import random 
+        from collections import defaultdict
+
+        fraction = self.config['valid_ratio']
+        labels = [torch.argmax(i[1]).item() for i in dataset]
+
+        if random_state: 
+            random.seed(random_state)
+        indices_per_label = defaultdict(list)
+        for index, label in enumerate(labels):
+            indices_per_label[label].append(index)
+        first_set_inds, second_set_inds = list(), list()
+        for label, indices in indices_per_label.items():
+            n_samples_for_label = round(len(indices) * fraction)
+            random_indices_sample = random.sample(indices, n_samples_for_label)
+            first_set_inds.extend(random_indices_sample)
+            second_set_inds.extend(set(indices) - set(random_indices_sample))
+
+        return second_set_inds, first_set_inds 
+
     def prepare(self, mode):
         if mode == 'train':
             tmp_dataset = MotorDataset(
@@ -85,12 +106,8 @@ class ImgHandler():
             from torch.utils.data.sampler import SubsetRandomSampler
 
             batch_size = self.config['batch_size']
-            valid_ratio = self.config['valid_ratio']
-            val_split = int(len(dataset) * valid_ratio)
-            indicies = torch.arange(len(dataset))
-            np.random.shuffle(indicies)
-            train_ind, val_inds = indicies[val_split:], indicies[:val_split]
-            train_sampler, val_sampler = SubsetRandomSampler(train_ind), SubsetRandomSampler(val_inds)
+            train_inds, val_inds = self.stratified_split(dataset)
+            train_sampler, val_sampler = SubsetRandomSampler(train_inds), SubsetRandomSampler(val_inds)
             train_loader = torch.utils.data.DataLoader(
                 dataset, 
                 batch_size=batch_size, 
