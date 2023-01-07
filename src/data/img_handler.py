@@ -86,25 +86,25 @@ class ImgHandler():
         return second_set_inds, first_set_inds 
 
     def prepare(self, mode):
-        folder_path = self.config['folder_path']
         if mode == 'train':
             tmp_dataset = MotorDataset(
-                folder_path
+                self.config['folder_path']
             )
             self.get_mean_std(tmp_dataset)
             del tmp_dataset
 
-        dataset = MotorDataset(
-            folder_path, 
-            transform=transforms.Compose([
-                transforms.Scale((240, 240)),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=self.config['mean'], std=self.config['std'])
-            ])
-        )
+        tf = transforms.Compose([
+            transforms.Scale((240, 240)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=self.config['mean'], std=self.config['std'])
+        ])
         
         if mode == 'train':
             from torch.utils.data.sampler import SubsetRandomSampler
+            from pathlib import Path
+            
+            folder_path = self.config['folder_path']
+            dataset = MotorDataset(folder_path, transform=tf)
             logging.info(f'Training on {len(dataset)} samples from\n{folder_path}')
             batch_size = self.config['batch_size']
             train_inds, val_inds = self.stratified_split(dataset)
@@ -119,14 +119,19 @@ class ImgHandler():
                 batch_size=batch_size, 
                 sampler=val_sampler
             )
-            inference_config = yaml.load(open(self.config['inference_config']), Loader=SafeLoader)
-            inference_config['mean'] = self.config['mean'].numpy().tolist()
-            inference_config['std'] = self.config['std'].numpy().tolist()
-            yaml.dump(inference_config, open(self.config['inference_config'], 'w'))
+
+            for config_name in self.config['update_mean_std_configs']:
+                config_path = Path(self.config['config_folder']) / config_name
+                config_ = yaml.load(open(config_path), Loader=SafeLoader)
+                config_['mean'] = self.config['mean'].numpy().tolist()
+                config_['std'] = self.config['std'].numpy().tolist()
+                yaml.dump(config_, open(config_path, 'w'))
             
             return train_loader, val_loader
 
         if mode == 'test':
+            folder_path = self.config['folder_path']
+            dataset = MotorDataset(folder_path, transform=tf)
             logging.info(f'Testing on {len(dataset)} samples from\n{folder_path}')
             batch_size = self.config['batch_size']
             loader = torch.utils.data.DataLoader(
@@ -134,6 +139,10 @@ class ImgHandler():
                 batch_size=batch_size
             )
             return loader
-
-
+        
+        if mode == 'inference':
+            instance = Image.open(os.path.join(self.config['image_path']))
+            instance = tf(instance)
+            instance = instance.unsqueeze(0)
+            return instance
 

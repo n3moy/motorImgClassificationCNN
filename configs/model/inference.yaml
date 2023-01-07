@@ -1,0 +1,23 @@
+image_path: .\\data\\interim\\augmented\\test\\Fan_f072.bmp
+mapping:
+- A&B50
+- A&C&B10
+- A&C&B30
+- A&C10
+- A&C30
+- A10
+- A30
+- A50
+- Fan
+- Noload
+- Rotor-0
+mean:
+- 0.17011070251464844
+- 0.044127922505140305
+- 0.39075028896331787
+model_path: .\\models\\model_cnn.pth
+output_path: .\\logs\\inference\\inference_results.yaml
+std:
+- 0.24964582920074463
+- 0.1478048861026764
+- 0.11525586992502213

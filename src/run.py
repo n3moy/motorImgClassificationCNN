@@ -4,7 +4,7 @@ import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
-from utils import train_model, test_model
+from utils import train_model, test_model, inference
 
 
 def get_args():
@@ -22,11 +22,7 @@ def get_args():
         choices=['train', 'test', 'inference'],
         help='Run mode'
     )
-    parser.add_argument(
-        '--augmented',
-        type=bool, default=False,
-        help='Use augmented data for train'
-    )
+
     return parser.parse_args()
 
 
@@ -45,10 +41,12 @@ if __name__ == '__main__':
         format='%(asctime)s %(levelname)s: %(message)s',
         filemode='a+'
     )
-    # TODO Add functions to run modes
+
     if mode == 'train':
         train_model(config_path=config_path)
     if mode == 'test':
         test_model(config_path=config_path)
+    if mode == 'inference':
+        inference(config_path=config_path)
 
 

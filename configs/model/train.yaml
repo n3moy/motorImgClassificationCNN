@@ -1,7 +1,10 @@
 'batch_size': 16
-'valid_ratio': 0.4
-'n_epochs': 10
-'learning_rate': 0.01
-'my_path': '.\\configs\\model\\train.yaml'
-'folder_path': '.\\data\\interim\\data_named'
-'save_model_path': '.\\models'
+'valid_ratio': 0.3
+'n_epochs': 20
+'learning_rate': 0.001
+'config_folder': '.\\configs\\model'
+'update_mean_std_configs':
+- 'test.yaml'
+- 'inference.yaml'
+'folder_path': '.\\data\\interim\\augmented\\train'
+'save_model_path': '.\\models\\model_cnn.pth'

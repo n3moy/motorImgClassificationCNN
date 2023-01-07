@@ -8,7 +8,7 @@ import torch.nn as nn
 
 from models.trainer import Trainer
 from models.model import CNN
-from data.img_handler import ImgHandler
+from data.img_handler import ImgHandler, MotorDataset
 
 
 def train_model(config_path):
@@ -72,3 +72,24 @@ def test_model(config_path):
 
     logging.info(f'Quality metrics saved to {out_path}')
 
+
+def inference(config_path):
+    config = yaml.load(open(config_path), Loader=SafeLoader)
+    handler = ImgHandler(config)
+    instance = handler.prepare(mode='inference')
+    model_cnn = CNN(img_size=None, out_size=11)
+    model_path = config['model_path']
+    out_path = config['output_path']
+
+    logging.info(f'Inference started with model from {model_path}')
+
+    model_cnn.load_state_dict(torch.load(model_path))
+    model_cnn.eval()
+    pred = model_cnn(instance)
+    pred = config['mapping'][torch.argmax(pred)]
+
+    img_name = config['image_path'].split('\\')[-1]
+    logging.info(f'Motor state of {img_name} predicted : {pred}')
+    result = {img_name: pred}
+    yaml.dump(result, open(out_path, 'w'), sort_keys=False)
+    logging.info(f'Inference results saved to {out_path}')
