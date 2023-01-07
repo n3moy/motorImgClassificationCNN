@@ -1,6 +1,6 @@
 import os
 import yaml
-import numpy as np
+import logging
 import torch
 from torchvision import transforms
 from torch.utils.data import Dataset
@@ -86,15 +86,16 @@ class ImgHandler():
         return second_set_inds, first_set_inds 
 
     def prepare(self, mode):
+        folder_path = self.config['folder_path']
         if mode == 'train':
             tmp_dataset = MotorDataset(
-                self.config['folder_path']
+                folder_path
             )
             self.get_mean_std(tmp_dataset)
             del tmp_dataset
 
         dataset = MotorDataset(
-            self.config['folder_path'], 
+            folder_path, 
             transform=transforms.Compose([
                 transforms.Scale((240, 240)),
                 transforms.ToTensor(),
@@ -104,7 +105,7 @@ class ImgHandler():
         
         if mode == 'train':
             from torch.utils.data.sampler import SubsetRandomSampler
-
+            logging.info(f'Training on {len(dataset)} samples from\n{folder_path}')
             batch_size = self.config['batch_size']
             train_inds, val_inds = self.stratified_split(dataset)
             train_sampler, val_sampler = SubsetRandomSampler(train_inds), SubsetRandomSampler(val_inds)
@@ -126,6 +127,7 @@ class ImgHandler():
             return train_loader, val_loader
 
         if mode == 'test':
+            logging.info(f'Testing on {len(dataset)} samples from\n{folder_path}')
             batch_size = self.config['batch_size']
             loader = torch.utils.data.DataLoader(
                 dataset, 

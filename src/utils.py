@@ -22,6 +22,12 @@ def train_model(config_path):
     trainer = Trainer(model_cnn, device=device)
     n_epochs = config['n_epochs']
     lr = config['learning_rate']
+
+    logging.info(
+        f'Training started with inputs\n \
+        device : {device}, n_epochs : {n_epochs}, learning_rate : {lr}'
+    )
+
     loss = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model_cnn.parameters(), lr=lr)
     loss_history, model = trainer.train_CNN(
@@ -54,8 +60,15 @@ def test_model(config_path):
     handler = ImgHandler(config)
     test_loader = handler.prepare(mode='test')
     model_cnn = CNN(img_size=None, out_size=11)
-    model_cnn.load_state_dict(torch.load(config['model_path']))
+    model_path = config['model_path']
+    out_path = config['output_path']
+
+    logging.info(f'Testing started with model from {model_path}')
+
+    model_cnn.load_state_dict(torch.load(model_path))
     preds, ground_truth = evaluate_model(model_cnn, test_loader)
     metrics = get_quality_metrics(preds, ground_truth)
-    yaml.dump(metrics, open(config['output_path'], 'w'), sort_keys=False)
+    yaml.dump(metrics, open(out_path, 'w'), sort_keys=False)
+
+    logging.info(f'Quality metrics saved to {out_path}')
 

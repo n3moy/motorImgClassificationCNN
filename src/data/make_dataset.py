@@ -56,7 +56,7 @@ def train_test_split(folder_path, out_path, fraction, n_replications):
 if __name__ == '__main__':
     folder_path = Path(__file__).parent.parent.parent / 'data' / 'interim' / 'data_named'
     out_path = Path(__file__).parent.parent.parent / 'data' / 'interim' / 'augmented'
-    fraction = 0.5
-    n_replications = 3
+    fraction = 0.2
+    n_replications = 0
 
     train_test_split(folder_path, out_path, fraction, n_replications)

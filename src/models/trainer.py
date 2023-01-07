@@ -20,7 +20,7 @@ class Trainer():
         best_loss = 10000
         best_model = None
         best_epoch = 0
-        logging.info('Starting model training')
+        logging.info('Starting model training process')
         for i_epoch in range(n_epochs):
             print(f'# {i_epoch} / {n_epochs} epoch')
             self.model.train()
