@@ -1,4 +1,4 @@
-motor_state_id
+motorImgClassificationCNN
 ==============================
 
 For these images thanks to
