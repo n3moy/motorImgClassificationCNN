@@ -1,4 +1,4 @@
-image_path: .\\data\\interim\\augmented\\test\\Fan_f072.bmp
+image_path: .\\data\\interim\\augmented\\test\\A50_257.bmp
 mapping:
 - A&B50
 - A&C&B10
@@ -12,12 +12,13 @@ mapping:
 - Noload
 - Rotor-0
 mean:
-- 0.17011070251464844
-- 0.044127922505140305
-- 0.39075028896331787
+- 0.1610124707221985
+- 0.043388716876506805
+- 0.3274461328983307
 model_path: .\\models\\model_cnn.pth
+model_path_web: ..\\..\\models\\model_cnn.pth
 output_path: .\\logs\\inference\\inference_results.yaml
 std:
-- 0.24964582920074463
-- 0.1478048861026764
-- 0.11525586992502213
+- 0.2545757591724396
+- 0.1466277688741684
+- 0.17957842350006104

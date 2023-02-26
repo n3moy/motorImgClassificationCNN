@@ -1,6 +1,6 @@
-'batch_size': 16
+'batch_size': 32
 'valid_ratio': 0.3
-'n_epochs': 20
+'n_epochs': 50
 'learning_rate': 0.001
 'config_folder': '.\\configs\\model'
 'update_mean_std_configs':
