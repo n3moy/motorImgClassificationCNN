@@ -16,9 +16,8 @@ def train_model(config_path):
     handler = ImgHandler(config)
     train_loader, val_loader = handler.prepare(mode='train')
     model_cnn = CNN(img_size=None, out_size=11)
-    # use_cuda = torch.cuda.is_available()
-    # device = torch.device('cuda:0' if use_cuda else 'cpu')
-    device = 'cpu'
+    use_cuda = torch.cuda.is_available()
+    device = torch.device('cuda:0' if use_cuda else 'cpu')
     trainer = Trainer(model_cnn, device=device)
     n_epochs = config['n_epochs']
     lr = config['learning_rate']

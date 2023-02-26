@@ -94,7 +94,7 @@ class ImgHandler():
             del tmp_dataset
 
         tf = transforms.Compose([
-            transforms.Scale((240, 240)),
+            transforms.Resize((240, 240)),
             transforms.ToTensor(),
             transforms.Normalize(mean=self.config['mean'], std=self.config['std'])
         ])

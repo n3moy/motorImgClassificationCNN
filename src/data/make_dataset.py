@@ -34,7 +34,7 @@ def train_test_split(folder_path, out_path, fraction, n_replications):
     aug_transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
-        transforms.RandomRotation([10, 50], resample=PIL.Image.BILINEAR)
+        transforms.RandomRotation([10, 180], interpolation=PIL.Image.BILINEAR)
     ])
 
     dataset = MotorDataset(folder_path)
@@ -57,6 +57,6 @@ if __name__ == '__main__':
     folder_path = Path(__file__).parent.parent.parent / 'data' / 'interim' / 'data_named'
     out_path = Path(__file__).parent.parent.parent / 'data' / 'interim' / 'augmented'
     fraction = 0.2
-    n_replications = 0
+    n_replications = 10
 
     train_test_split(folder_path, out_path, fraction, n_replications)
